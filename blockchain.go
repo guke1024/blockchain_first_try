@@ -6,7 +6,7 @@ import (
 )
 
 type BlockChain struct {
-	db   bolt.DB
+	db   *bolt.DB
 	tail []byte // store last block hash
 }
 
@@ -33,7 +33,7 @@ func NewBlockChain() *BlockChain {
 		}
 		return nil
 	})
-	return &BlockChain{*db, lastHash}
+	return &BlockChain{db, lastHash}
 }
 
 // GenesisBlock def Genesis block
