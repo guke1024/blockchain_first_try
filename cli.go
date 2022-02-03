@@ -14,6 +14,7 @@ const Usage = `
 	printChain           "print all blockchain data"
 `
 
+// Run go build example => ./example.exe command
 func (cli *CLI) Run() {
 	args := os.Args // get command
 	if len(args) < 2 {
