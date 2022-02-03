@@ -10,8 +10,6 @@ git clone https://github.com/guke1024/blockchain_first_try.git
 cd blockchain_first_try
 rm .\blockChain.db
 go get go.etcd.io/bbolt/...
-go mod init blockchain_first_try
-go mod tidy
 go build blockchain_first_try
 ```
 ## Run
