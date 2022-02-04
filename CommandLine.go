@@ -41,3 +41,13 @@ func (cli *CLI) GetBalance(address string) {
 	}
 	fmt.Printf("%s have balance: %f\n", address, total)
 }
+
+func (cli *CLI) Transfer(from, to string, amount float64, miner, data string) {
+	mining := NewMiningTX(miner, data)
+	tx := NewTransaction(from, to, amount, cli.bc)
+	if tx == nil {
+		return
+	}
+	cli.bc.AddBlock([]*Transaction{mining, tx})
+	fmt.Println("Transfer success!")
+}

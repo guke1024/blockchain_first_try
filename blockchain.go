@@ -88,26 +88,50 @@ func (bc *BlockChain) PrintChain() {
 	})
 }
 
-// IsMining judge whether the current transaction is mining
-func (tx *Transaction) IsMining() bool {
-	if len(tx.TXInputs) == 1 {
-		input := tx.TXInputs[0]
-		if !bytes.Equal(input.TXid, []byte{}) || input.Index != -1 {
-			return false
-		}
-	}
-	return true
-}
-
 // FindUTXOs find designated address add utxo
 func (bc *BlockChain) FindUTXOs(address string) []TXOutput {
 	var utxo []TXOutput
+	txs := bc.FindUTXOTransactions(address)
+	for _, tx := range txs {
+		for _, output := range tx.TXOutputs {
+			if address == output.PubKeyHash {
+				utxo = append(utxo, output)
+			}
+		}
+	}
+	return utxo
+}
+
+func (bc *BlockChain) FindNeedUTXOs(from string, amount float64) (map[string][]uint64, float64) {
+	utxos := make(map[string][]uint64) // find utxos what need
+	var calc float64                   // count utxos
+	txs := bc.FindUTXOTransactions(from)
+	for _, tx := range txs {
+		for i, output := range tx.TXOutputs {
+			if from == output.PubKeyHash {
+				if calc < amount {
+					utxos[string(tx.TXID)] = append(utxos[string(tx.TXID)], uint64(i)) // add utxo
+					calc += output.Value                                               // sum current utxo
+					if calc >= amount {
+						return utxos, calc
+					}
+				} else {
+					fmt.Printf("Transfer amount not satisfied, current total %f", calc)
+				}
+			}
+		}
+	}
+	return utxos, calc
+}
+
+func (bc *BlockChain) FindUTXOTransactions(address string) []*Transaction {
+	var txs []*Transaction // store all transaction
 	spentOutputs := make(map[string][]int64)
 	it := bc.NewIterator() // create block iterator
 	for {
 		block := it.Next()
 		for _, tx := range block.Transactions {
-			fmt.Printf("current txId: %x\n", tx.TXID)
+			//fmt.Printf("current txId: %x\n", tx.TXID)
 		JumpOutput:
 			for i, output := range tx.TXOutputs {
 				if spentOutputs[string(tx.TXID)] != nil {
@@ -118,18 +142,15 @@ func (bc *BlockChain) FindUTXOs(address string) []TXOutput {
 					}
 				}
 				if output.PubKeyHash == address {
-					utxo = append(utxo, output)
+					txs = append(txs, tx) // all transactions involving utxo
 				}
 			}
 			if !tx.IsMining() { // if current transaction is mining, skip directly
 				for _, input := range tx.TXInputs {
 					if input.Sig == address {
-						indexArray := spentOutputs[string(input.TXid)]
-						indexArray = append(indexArray, input.Index)
+						spentOutputs[string(input.TXid)] = append(spentOutputs[string(input.TXid)], input.Index)
 					}
 				}
-			} else {
-				fmt.Println("This is mining transaction, cancel range.")
 			}
 		}
 		if len(block.PrevHash) == 0 {
@@ -137,11 +158,5 @@ func (bc *BlockChain) FindUTXOs(address string) []TXOutput {
 			break
 		}
 	}
-	return utxo
-}
-
-func (bc *BlockChain) FindNeedUTXOs(from string, amount float64) (map[string][]uint64, float64) {
-	var utxos map[string][]uint64 // find utxos what need
-	var calc float64              // count utxos
-	return utxos, calc
+	return txs
 }

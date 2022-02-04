@@ -40,6 +40,14 @@ func (tx *Transaction) SetHash() {
 	tx.TXID = hash[:]
 }
 
+// IsMining judge whether the current transaction is mining
+func (tx *Transaction) IsMining() bool {
+	if len(tx.TXInputs) == 1 && len(tx.TXInputs[0].TXid) == 0 && tx.TXInputs[0].Index == -1 {
+		return true
+	}
+	return false
+}
+
 // NewMiningTX create a transaction. Mine transaction characteristic: transaction ID and index is not required
 func NewMiningTX(address, data string) *Transaction {
 	input := TXInput{[]byte{}, -1, data} // Miners don't need to specify sig when mining, sig is usually the name of the ore pool
