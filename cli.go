@@ -15,6 +15,7 @@ const Usage = `
 	printChainR                        "Reverse print all blockchain data"
 	getBalance --address ADDRESS       "Obtain designated address balance"
 	transfer FROM TO AMOUNT MINER DATA "FROM transfers AMOUNT to TO, MINER mine and write to data"
+	newWallet                          "Create a new wallet()"
 `
 
 // Run go build example => ./example.exe command
@@ -55,6 +56,9 @@ func (cli *CLI) Run() {
 		miner := args[5]
 		data := args[6]
 		cli.Transfer(from, to, amount, miner, data)
+	case "newWallet":
+		fmt.Println("Create a new wallet:")
+		cli.CliNewWallet()
 	default:
 		fmt.Println("Invalid command")
 		fmt.Printf(Usage)

@@ -50,3 +50,9 @@ func (cli *CLI) Transfer(from, to string, amount float64, miner, data string) {
 	cli.bc.AddBlock([]*Transaction{mining, tx})
 	fmt.Println("Transfer success!")
 }
+
+func (cli *CLI) CliNewWallet() {
+	wallet := NewWallet()
+	fmt.Printf("Private Key: %v\n", wallet.Private)
+	fmt.Printf("Public Key: %v\n", wallet.Public)
+}
