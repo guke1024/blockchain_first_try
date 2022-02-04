@@ -2,11 +2,6 @@ package main
 
 import "fmt"
 
-func (cli *CLI) AddBlock(data string) {
-	//cli.bc.AddBlock(data) //TODO
-	fmt.Println("Add block success!")
-}
-
 func (cli *CLI) PrintBlockChain() {
 	cli.bc.PrintChain()
 	fmt.Println("Print blockchain success")
