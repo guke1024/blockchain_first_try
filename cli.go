@@ -11,7 +11,8 @@ type CLI struct {
 
 const Usage = `
 	addBlock --data DATA "add data to blockchain"
-	printChain           "print all blockchain data"
+	printChain           "forward print all blockchain data"
+	printChainR          "Reverse print all blockchain data"
 `
 
 // Run go build example => ./example.exe command
@@ -34,8 +35,11 @@ func (cli *CLI) Run() {
 			fmt.Printf(Usage)
 		}
 	case "printChain":
-		fmt.Println("Print block:")
+		fmt.Println("forward print all blockchain data:")
 		cli.PrintBlockChain()
+	case "printChainR":
+		fmt.Println("Reverse print all blockchain data")
+		cli.PrintBlockChainReverse()
 	default:
 		fmt.Println("Invalid command")
 		fmt.Printf(Usage)

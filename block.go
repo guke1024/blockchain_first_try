@@ -18,8 +18,8 @@ type Block struct {
 	Nonce      uint64
 
 	// following data is not in real blockchain
-	Hash []byte
-	Data []byte
+	Hash         []byte
+	Transactions []*Transaction
 }
 
 func Uint64ToByte(num uint64) []byte {
@@ -31,18 +31,18 @@ func Uint64ToByte(num uint64) []byte {
 	return buffer.Bytes()
 }
 
-func NewBlock(data string, prevBlockHash []byte) *Block {
+func NewBlock(txs []*Transaction, prevBlockHash []byte) *Block {
 	block := Block{
-		Version:    00,
-		PrevHash:   prevBlockHash,
-		MerkelRoot: []byte{},
-		TimeStamp:  uint64(time.Now().Unix()),
-		Difficulty: 0,
-		Nonce:      0,
-		Hash:       []byte{},
-		Data:       []byte(data),
+		Version:      00,
+		PrevHash:     prevBlockHash,
+		MerkelRoot:   []byte{},
+		TimeStamp:    uint64(time.Now().Unix()),
+		Difficulty:   0,
+		Nonce:        0,
+		Hash:         []byte{},
+		Transactions: txs,
 	}
-
+	block.MerkelRoot = block.MakeMerkelRoot()
 	pow := NewProofOfWork(&block)
 	// select nonce, keep hashing
 	hash, nonce := pow.Run()
@@ -70,4 +70,8 @@ func Deserialize(data []byte) Block {
 	}
 
 	return block
+}
+
+func (block *Block) MakeMerkelRoot() []byte {
+	return []byte{}
 }
