@@ -104,7 +104,7 @@ func (bc *BlockChain) FindUTXOs(address string) []TXOutput {
 
 func (bc *BlockChain) FindNeedUTXOs(from string, amount float64) (map[string][]uint64, float64) {
 	utxos := make(map[string][]uint64) // find utxos what need
-	var calc float64                   // count utxos
+	var calc float64                   // sum utxos
 	txs := bc.FindUTXOTransactions(from)
 	for _, tx := range txs {
 		for i, output := range tx.TXOutputs {

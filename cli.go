@@ -11,10 +11,10 @@ type CLI struct {
 }
 
 const Usage = `
-	addBlock --data DATA           "add data to blockchain"
-	printChain                     "forward print all blockchain data"
-	printChainR                    "Reverse print all blockchain data"
-	getBalance --address ADDRESS   "obtain designated address balance"
+	addBlock --data DATA               "Add data to blockchain"
+	printChain                         "Forward print all blockchain data"
+	printChainR                        "Reverse print all blockchain data"
+	getBalance --address ADDRESS       "Obtain designated address balance"
 	transfer FROM TO AMOUNT MINER DATA "FROM transfers AMOUNT to TO, MINER mine and write to data"
 `
 

@@ -9,7 +9,7 @@ func (cli *CLI) AddBlock(data string) {
 
 func (cli *CLI) PrintBlockChain() {
 	cli.bc.PrintChain()
-	fmt.Println("print blockchain success")
+	fmt.Println("Print blockchain success")
 }
 
 func (cli *CLI) PrintBlockChainReverse() {
@@ -27,7 +27,7 @@ func (cli *CLI) PrintBlockChainReverse() {
 		fmt.Printf("Current block hash: %x\n", block.Hash)
 		fmt.Printf("Block data: %s\n", block.Transactions[0].TXInputs[0].Sig)
 		if len(block.PrevHash) == 0 {
-			fmt.Printf("==blockchain range end==")
+			fmt.Printf("==Blockchain range end==")
 			break
 		}
 	}
