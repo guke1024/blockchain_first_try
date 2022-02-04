@@ -10,9 +10,9 @@ import (
 const reward = 12.5
 
 type Transaction struct {
-	TXID     []byte // transaction id
-	TXInputs []TXInput
-	TXOutput []TXOutput
+	TXID      []byte // transaction id
+	TXInputs  []TXInput
+	TXOutputs []TXOutput
 }
 
 type TXInput struct {
@@ -22,8 +22,8 @@ type TXInput struct {
 }
 
 type TXOutput struct {
-	value      float64
-	PukKeyHash string // lock script
+	Value      float64
+	PubKeyHash string // lock script
 }
 
 // SetHash set transaction ID

@@ -87,3 +87,40 @@ func (bc *BlockChain) PrintChain() {
 		return nil
 	})
 }
+
+// FindUTXOs find designated address add utxo
+func (bc *BlockChain) FindUTXOs(address string) []TXOutput {
+	var utxo []TXOutput
+	spentOutputs := make(map[string][]int64)
+	it := bc.NewIterator() // create block iterator
+	for {
+		block := it.Next()
+		for _, tx := range block.Transactions {
+			fmt.Printf("current txId: %x\n", tx.TXID)
+		JumpOutput:
+			for i, output := range tx.TXOutputs {
+				if spentOutputs[string(tx.TXID)] != nil {
+					for _, j := range spentOutputs[string(tx.TXID)] {
+						if int64(i) == j { // current ready add output has consumed
+							continue JumpOutput // jump
+						}
+					}
+				}
+				if output.PubKeyHash == address {
+					utxo = append(utxo, output)
+				}
+			}
+			for _, input := range tx.TXInputs {
+				if input.Sig == address {
+					indexArray := spentOutputs[string(input.TXid)]
+					indexArray = append(indexArray, input.Index)
+				}
+			}
+		}
+		if len(block.PrevHash) == 0 {
+			fmt.Printf("Blockchain range complete!\n")
+			break
+		}
+	}
+	return utxo
+}
