@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"encoding/binary"
 	"encoding/gob"
 	"log"
@@ -56,7 +57,7 @@ func (block *Block) Serialize() []byte {
 	encoder := gob.NewEncoder(&buffer)
 	err1 := encoder.Encode(&block)
 	if err1 != nil {
-		log.Panic("encode fail!")
+		log.Panic("Encode fail!")
 	}
 	return buffer.Bytes()
 }
@@ -66,12 +67,17 @@ func Deserialize(data []byte) Block {
 	var block Block
 	err1 := decoder.Decode(&block)
 	if err1 != nil {
-		log.Panic("decode fail!")
+		log.Panic("Decode fail!")
 	}
 
 	return block
 }
 
 func (block *Block) MakeMerkelRoot() []byte {
-	return []byte{}
+	var info []byte
+	for _, tx := range block.Transactions {
+		info = append(info, tx.TXID...) // Splicing transaction hash
+	}
+	hash := sha256.Sum256(info)
+	return hash[:]
 }
