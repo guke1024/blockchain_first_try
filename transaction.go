@@ -39,8 +39,8 @@ func (tx *Transaction) SetHash() {
 	tx.TXID = hash[:]
 }
 
-// NewCoinbaseTX create a transaction. Mine transaction characteristic: transaction ID and index is not required
-func NewCoinbaseTX(address, data string) *Transaction {
+// NewMiningTX create a transaction. Mine transaction characteristic: transaction ID and index is not required
+func NewMiningTX(address, data string) *Transaction {
 	input := TXInput{[]byte{}, -1, data} // Miners don't need to specify sig when mining, sig is usually the name of the ore pool
 	output := TXOutput{reward, address}
 	tx := Transaction{[]byte{}, []TXInput{input}, []TXOutput{output}}

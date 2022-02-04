@@ -40,7 +40,7 @@ func NewBlockChain(address string) *BlockChain {
 
 // GenesisBlock def Genesis block
 func GenesisBlock(address string) *Block {
-	coinbase := NewCoinbaseTX(address, "Genesis block")
+	coinbase := NewMiningTX(address, "Genesis block")
 	return NewBlock([]*Transaction{coinbase}, []byte{})
 }
 
