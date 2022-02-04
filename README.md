@@ -1,4 +1,4 @@
-# Usage
+### This project has only been tested under Windows operating system and go 1.17
 
 ## Pull project
 ```shell
@@ -15,4 +15,9 @@ go build blockchain_first_try
 ## Run
 ```shell
 .\blockchain_first_try.exe
+```
+
+## Usage
+```shell
+.\run.bat [command]
 ```
