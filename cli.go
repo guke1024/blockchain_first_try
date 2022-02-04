@@ -11,7 +11,6 @@ type CLI struct {
 }
 
 const Usage = `
-	addBlock --data DATA               "Add data to blockchain"
 	printChain                         "Forward print all blockchain data"
 	printChainR                        "Reverse print all blockchain data"
 	getBalance --address ADDRESS       "Obtain designated address balance"
@@ -28,15 +27,6 @@ func (cli *CLI) Run() {
 	}
 	cmd := args[1]
 	switch cmd {
-	case "addBlock":
-		fmt.Println("Add block:")
-		if len(args) == 4 && args[2] == "--data" {
-			data := args[3] // get command line data
-			cli.AddBlock(data)
-		} else {
-			fmt.Println("AddBlock parameters error!")
-			fmt.Printf(Usage)
-		}
 	case "printChain":
 		fmt.Println("Forward print all blockchain data:")
 		cli.PrintBlockChain()
