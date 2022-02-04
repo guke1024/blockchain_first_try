@@ -8,7 +8,7 @@ import (
 	"log"
 )
 
-const reward = 12.5
+const reward = 50
 
 type Transaction struct {
 	TXID      []byte // transaction id
