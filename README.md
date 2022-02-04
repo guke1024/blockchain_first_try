@@ -17,3 +17,9 @@ go get go.etcd.io/bbolt/...
 ```shell
 .\blockchain_first_try.exe [command]
 ```
+
+### Or you can use `.bat` file to test quickly.
+```shell
+.\transfer.bat
+.\checkBalance.bat
+```
