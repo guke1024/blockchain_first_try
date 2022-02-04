@@ -64,10 +64,10 @@ func (bc *BlockChain) AddBlock(txs []*Transaction) {
 
 func (bc *BlockChain) PrintChain() {
 	blockHeight := 0
-	bc.db.View(func(tx *bolt.Tx) error {
+	_ = bc.db.View(func(tx *bolt.Tx) error {
 		// Assume bucket exists and has keys
 		b := tx.Bucket([]byte("blockBucket"))
-		b.ForEach(func(k, v []byte) error {
+		_ = b.ForEach(func(k, v []byte) error {
 			if bytes.Equal(k, []byte("LastHashKey")) {
 				return nil
 			}
