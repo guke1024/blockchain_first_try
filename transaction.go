@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/gob"
+	"fmt"
 	"log"
 )
 
@@ -44,6 +45,31 @@ func NewMiningTX(address, data string) *Transaction {
 	input := TXInput{[]byte{}, -1, data} // Miners don't need to specify sig when mining, sig is usually the name of the ore pool
 	output := TXOutput{reward, address}
 	tx := Transaction{[]byte{}, []TXInput{input}, []TXOutput{output}}
+	tx.SetHash()
+	return &tx
+}
+
+// NewTransaction create a common transaction
+func NewTransaction(from, to string, amount float64, bc *BlockChain) *Transaction {
+	utxos, resValue := bc.FindNeedUTXOs(from, amount)
+	if resValue < amount {
+		fmt.Println("Balance is not enough, transaction fail.")
+		return nil
+	}
+	var input []TXInput
+	var output []TXOutput
+	for id, indexArray := range utxos {
+		for _, i := range indexArray { // create transaction input
+			input = append(input, TXInput{[]byte(id), int64(i), from})
+		}
+
+	}
+	output = append(output, TXOutput{amount, to}) // create transaction output
+
+	if resValue > amount { // give change
+		output = append(output, TXOutput{resValue - amount, from})
+	}
+	tx := Transaction{[]byte{}, input, output}
 	tx.SetHash()
 	return &tx
 }
