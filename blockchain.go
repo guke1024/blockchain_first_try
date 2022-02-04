@@ -88,6 +88,17 @@ func (bc *BlockChain) PrintChain() {
 	})
 }
 
+// IsMining judge whether the current transaction is mining
+func (tx *Transaction) IsMining() bool {
+	if len(tx.TXInputs) == 1 {
+		input := tx.TXInputs[0]
+		if !bytes.Equal(input.TXid, []byte{}) || input.Index != -1 {
+			return false
+		}
+	}
+	return true
+}
+
 // FindUTXOs find designated address add utxo
 func (bc *BlockChain) FindUTXOs(address string) []TXOutput {
 	var utxo []TXOutput
@@ -110,11 +121,15 @@ func (bc *BlockChain) FindUTXOs(address string) []TXOutput {
 					utxo = append(utxo, output)
 				}
 			}
-			for _, input := range tx.TXInputs {
-				if input.Sig == address {
-					indexArray := spentOutputs[string(input.TXid)]
-					indexArray = append(indexArray, input.Index)
+			if !tx.IsMining() { // if current transaction is mining, skip directly
+				for _, input := range tx.TXInputs {
+					if input.Sig == address {
+						indexArray := spentOutputs[string(input.TXid)]
+						indexArray = append(indexArray, input.Index)
+					}
 				}
+			} else {
+				fmt.Println("This is mining transaction, cancel range.")
 			}
 		}
 		if len(block.PrevHash) == 0 {
