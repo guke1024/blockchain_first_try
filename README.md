@@ -11,9 +11,9 @@ git clone https://github.com/guke1024/blockchain_first_try.git
 ```shell
 cd blockchain_first_try
 go get go.etcd.io/bbolt/...
-go build blockchain_first_try
+.\run.bat
 ```
 ## Run
 ```shell
-.\run.bat [command]
+.\blockchain_first_try.exe [command]
 ```
