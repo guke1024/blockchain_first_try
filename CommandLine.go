@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 func (cli *CLI) PrintBlockChain() {
 	cli.bc.PrintChain()
@@ -12,11 +15,12 @@ func (cli *CLI) PrintBlockChainReverse() {
 	it := bc.NewIterator()
 	for {
 		block := it.Next()
+		timeFormat := time.Unix(int64(block.TimeStamp), 0).Format("2006-01-02 15:04:05")
 		fmt.Println("===========================")
 		fmt.Printf("Version: %d\n", block.Version)
 		fmt.Printf("Prev block hash: %x\n", block.PrevHash)
 		fmt.Printf("Merkel root: %x\n", block.MerkelRoot)
-		fmt.Printf("Time stamp: %d\n", block.TimeStamp)
+		fmt.Printf("Time stamp: %s\n", timeFormat)
 		fmt.Printf("Difficulty: %d\n", block.Difficulty)
 		fmt.Printf("Nonce: %d\n", block.Nonce)
 		fmt.Printf("Current block hash: %x\n", block.Hash)
