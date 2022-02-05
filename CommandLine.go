@@ -33,6 +33,10 @@ func (cli *CLI) PrintBlockChainReverse() {
 }
 
 func (cli *CLI) GetBalance(address string) {
+	if !IsVailAddress(address) {
+		fmt.Printf("Address invalid: %s\n", address)
+		return
+	}
 	pubKeyHash := GetPubKeyFromAddress(address)
 	utxos := cli.bc.FindUTXOs(pubKeyHash)
 	total := 0.0
@@ -43,6 +47,18 @@ func (cli *CLI) GetBalance(address string) {
 }
 
 func (cli *CLI) Transfer(from, to string, amount float64, miner, data string) {
+	if !IsVailAddress(from) {
+		fmt.Printf("From address invalid: %s\n", from)
+		return
+	}
+	if !IsVailAddress(to) {
+		fmt.Printf("To address invalid: %s\n", to)
+		return
+	}
+	if !IsVailAddress(miner) {
+		fmt.Printf("Miner address invalid: %s\n", miner)
+		return
+	}
 	mining := NewMiningTX(miner, data)
 	tx := NewTransaction(from, to, amount, cli.bc)
 	if tx == nil {

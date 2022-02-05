@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
@@ -49,4 +50,15 @@ func (w *Wallet) NewAddress() string {
 	payload = append(payload, checkCode...) // 25bytes data
 	address := base58.Encode(payload)
 	return address
+}
+
+func IsVailAddress(address string) bool {
+	addressByte := base58.Decode(address)
+	if len(addressByte) < 4 {
+		return false
+	}
+	payload := addressByte[:len(addressByte)-4]
+	aCheckSum := addressByte[len(addressByte)-4:]
+	bCheckSum := CheckSum(payload)
+	return bytes.Equal(aCheckSum, bCheckSum)
 }
