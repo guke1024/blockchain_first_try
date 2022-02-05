@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"crypto/ecdsa"
 	"crypto/sha256"
 	"encoding/gob"
 	"fmt"
@@ -74,7 +75,7 @@ func NewTransaction(from, to string, amount float64, bc *BlockChain) *Transactio
 		return nil
 	}
 	publicKey := wallet.Public
-	//privateKey := wallet.Private
+	privateKey := wallet.Private
 
 	utxos, resValue := bc.FindNeedUTXOs(HashPubKey(publicKey), amount)
 	if resValue < amount {
@@ -96,5 +97,11 @@ func NewTransaction(from, to string, amount float64, bc *BlockChain) *Transactio
 	}
 	tx := Transaction{[]byte{}, input, output}
 	tx.SetHash()
+	prevTXs := make(map[string]Transaction)
+	tx.Sign(*privateKey, prevTXs)
 	return &tx
+}
+
+func (tx *Transaction) Sign(privateKey ecdsa.PrivateKey, prevTXs map[string]Transaction) {
+	// TODO
 }
