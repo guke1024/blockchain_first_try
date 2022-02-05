@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/elliptic"
 	"encoding/gob"
+	"github.com/btcsuite/btcd/btcutil/base58"
 	"io/ioutil"
 	"os"
 )
@@ -60,4 +61,10 @@ func (ws *Wallets) ListAllAddresses() []string {
 		addresses = append(addresses, address)
 	}
 	return addresses
+}
+
+func GetPubKeyFromAddress(address string) []byte {
+	addressByte := base58.Decode(address)
+	publicKeyHash := addressByte[1 : len(addressByte)-4]
+	return publicKeyHash
 }

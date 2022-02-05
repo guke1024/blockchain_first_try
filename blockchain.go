@@ -79,7 +79,7 @@ func (bc *BlockChain) PrintChain() {
 			fmt.Printf("Difficulty: %d\n", block.Difficulty)
 			fmt.Printf("Nonce: %d\n", block.Nonce)
 			fmt.Printf("Current block hash: %x\n", block.Hash)
-			fmt.Printf("Block data: %s\n", block.Transactions[0].TXInputs[0].Sig)
+			fmt.Printf("Block data: %s\n", block.Transactions[0].TXInputs[0].PubKey)
 			return nil
 		})
 		return nil
@@ -87,12 +87,12 @@ func (bc *BlockChain) PrintChain() {
 }
 
 // FindUTXOs find designated address add utxo
-func (bc *BlockChain) FindUTXOs(address string) []TXOutput {
+func (bc *BlockChain) FindUTXOs(PubKeyHash []byte) []TXOutput {
 	var utxo []TXOutput
-	txs := bc.FindUTXOTransactions(address)
+	txs := bc.FindUTXOTransactions(PubKeyHash)
 	for _, tx := range txs {
 		for _, output := range tx.TXOutputs {
-			if address == output.PubKeyHash {
+			if bytes.Equal(PubKeyHash, output.PubKeyHash) {
 				utxo = append(utxo, output)
 			}
 		}
@@ -100,13 +100,13 @@ func (bc *BlockChain) FindUTXOs(address string) []TXOutput {
 	return utxo
 }
 
-func (bc *BlockChain) FindNeedUTXOs(from string, amount float64) (map[string][]uint64, float64) {
+func (bc *BlockChain) FindNeedUTXOs(senderPubKeyHash []byte, amount float64) (map[string][]uint64, float64) {
 	utxos := make(map[string][]uint64) // find utxos what need
 	var calc float64                   // sum utxos
-	txs := bc.FindUTXOTransactions(from)
+	txs := bc.FindUTXOTransactions(senderPubKeyHash)
 	for _, tx := range txs {
 		for i, output := range tx.TXOutputs {
-			if from == output.PubKeyHash {
+			if bytes.Equal(senderPubKeyHash, output.PubKeyHash) {
 				if calc < amount {
 					utxos[string(tx.TXID)] = append(utxos[string(tx.TXID)], uint64(i)) // add utxo
 					calc += output.Value                                               // sum current utxo
@@ -122,7 +122,7 @@ func (bc *BlockChain) FindNeedUTXOs(from string, amount float64) (map[string][]u
 	return utxos, calc
 }
 
-func (bc *BlockChain) FindUTXOTransactions(address string) []*Transaction {
+func (bc *BlockChain) FindUTXOTransactions(senderPubKeyHash []byte) []*Transaction {
 	var txs []*Transaction // store all transaction
 	spentOutputs := make(map[string][]int64)
 	it := bc.NewIterator() // create block iterator
@@ -139,20 +139,19 @@ func (bc *BlockChain) FindUTXOTransactions(address string) []*Transaction {
 						}
 					}
 				}
-				if output.PubKeyHash == address {
+				if bytes.Equal(senderPubKeyHash, output.PubKeyHash) {
 					txs = append(txs, tx) // all transactions involving utxo
 				}
 			}
 			if !tx.IsMining() { // if current transaction is mining, skip directly
 				for _, input := range tx.TXInputs {
-					if input.Sig == address {
+					if bytes.Equal(HashPubKey(input.PubKey), senderPubKeyHash) {
 						spentOutputs[string(input.TXid)] = append(spentOutputs[string(input.TXid)], input.Index)
 					}
 				}
 			}
 		}
 		if len(block.PrevHash) == 0 {
-			fmt.Printf("Blockchain range complete!\n")
 			break
 		}
 	}

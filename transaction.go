@@ -16,14 +16,25 @@ type Transaction struct {
 }
 
 type TXInput struct {
-	TXid  []byte
-	Index int64 // quote output index
-	Sig   string
+	TXid      []byte
+	Index     int64  // quote output index
+	Signature []byte //
+	PubKey    []byte
 }
 
 type TXOutput struct {
 	Value      float64
-	PubKeyHash string // lock script
+	PubKeyHash []byte // lock script
+}
+
+func (output *TXOutput) Lock(address string) {
+	output.PubKeyHash = GetPubKeyFromAddress(address)
+}
+
+func NewTXOutput(value float64, address string) *TXOutput {
+	output := TXOutput{Value: value}
+	output.Lock(address)
+	return &output
 }
 
 // SetHash set transaction ID
@@ -47,16 +58,25 @@ func (tx *Transaction) IsMining() bool {
 
 // NewMiningTX create a transaction. Mine transaction characteristic: transaction ID and index is not required
 func NewMiningTX(address, data string) *Transaction {
-	input := TXInput{[]byte{}, -1, data} // Miners don't need to specify sig when mining, sig is usually the name of the ore pool
-	output := TXOutput{reward, address}
-	tx := Transaction{[]byte{}, []TXInput{input}, []TXOutput{output}}
+	input := TXInput{[]byte{}, -1, nil, []byte(data)} // Miners don't need to specify sig when mining, sig is usually the name of the ore pool
+	output := NewTXOutput(reward, address)
+	tx := Transaction{[]byte{}, []TXInput{input}, []TXOutput{*output}}
 	tx.SetHash()
 	return &tx
 }
 
 // NewTransaction create a common transaction
 func NewTransaction(from, to string, amount float64, bc *BlockChain) *Transaction {
-	utxos, resValue := bc.FindNeedUTXOs(from, amount)
+	ws := NewWallets()
+	wallet := ws.WalletsMap[from]
+	if wallet == nil {
+		fmt.Println("No wallet found for this address, create transaction fail!")
+		return nil
+	}
+	publicKey := wallet.Public
+	//privateKey := wallet.Private
+
+	utxos, resValue := bc.FindNeedUTXOs(HashPubKey(publicKey), amount)
 	if resValue < amount {
 		fmt.Println("Balance is not enough, transaction fail.")
 		return nil
@@ -65,14 +85,14 @@ func NewTransaction(from, to string, amount float64, bc *BlockChain) *Transactio
 	var output []TXOutput
 	for id, indexArray := range utxos {
 		for _, i := range indexArray { // create transaction input
-			input = append(input, TXInput{[]byte(id), int64(i), from})
+			input = append(input, TXInput{[]byte(id), int64(i), nil, publicKey})
 		}
 
 	}
-	output = append(output, TXOutput{amount, to}) // create transaction output
+	output = append(output, *NewTXOutput(amount, to)) // create transaction output
 
 	if resValue > amount { // give change
-		output = append(output, TXOutput{resValue - amount, from})
+		output = append(output, *NewTXOutput(resValue-amount, from))
 	}
 	tx := Transaction{[]byte{}, input, output}
 	tx.SetHash()

@@ -24,7 +24,7 @@ func (cli *CLI) PrintBlockChainReverse() {
 		fmt.Printf("Difficulty: %d\n", block.Difficulty)
 		fmt.Printf("Nonce: %d\n", block.Nonce)
 		fmt.Printf("Current block hash: %x\n", block.Hash)
-		fmt.Printf("Block data: %s\n", block.Transactions[0].TXInputs[0].Sig)
+		fmt.Printf("Block data: %s\n", block.Transactions[0].TXInputs[0].PubKey)
 		if len(block.PrevHash) == 0 {
 			fmt.Printf("==Blockchain range end==")
 			break
@@ -33,7 +33,8 @@ func (cli *CLI) PrintBlockChainReverse() {
 }
 
 func (cli *CLI) GetBalance(address string) {
-	utxos := cli.bc.FindUTXOs(address)
+	pubKeyHash := GetPubKeyFromAddress(address)
+	utxos := cli.bc.FindUTXOs(pubKeyHash)
 	total := 0.0
 	for _, utxo := range utxos {
 		total += utxo.Value
