@@ -23,7 +23,7 @@ func (it *BlockChainIterator) Next() *Block {
 	_ = it.db.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(blockBucket))
 		if bucket == nil {
-			log.Panic("(iterator)Bucket is nil")
+			log.Panic("(iterator)Bucket is nil!")
 		}
 		blockTmp := bucket.Get(it.currentHashPointer)
 		block = Deserialize(blockTmp)

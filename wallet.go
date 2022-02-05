@@ -7,7 +7,6 @@ import (
 	"crypto/sha256"
 	"github.com/btcsuite/btcd/btcutil/base58"
 	"golang.org/x/crypto/ripemd160"
-	"log"
 )
 
 type Wallet struct {
@@ -18,9 +17,7 @@ type Wallet struct {
 func NewWallet() *Wallet {
 	curve := elliptic.P256()
 	privateKey, err1 := ecdsa.GenerateKey(curve, rand.Reader)
-	if err1 != nil {
-		log.Panic()
-	}
+	HandleErr("NewWallet ecdsa.GenerateKey:\n", err1)
 	publicKeyOrig := privateKey.PublicKey
 	publicKey := append(publicKeyOrig.X.Bytes(), publicKeyOrig.Y.Bytes()...)
 	return &Wallet{privateKey, publicKey}
@@ -30,9 +27,7 @@ func HashPubKey(data []byte) []byte { // RIPEMD160(sha256(public key))
 	hash := sha256.Sum256(data)
 	rip160Hash := ripemd160.New() // encoder
 	_, err1 := rip160Hash.Write(hash[:])
-	if err1 != nil {
-		log.Panic(err1)
-	}
+	HandleErr("HashPubKey ripemd160.Write:\n", err1)
 	rip160HashValue := rip160Hash.Sum(nil) // rip160HashValue = public key hash (20bytes data)
 	return rip160HashValue
 }
@@ -52,8 +47,6 @@ func (w *Wallet) NewAddress() string {
 	payload := append([]byte{version}, rip160HashValue...) // 21bytes data
 	checkCode := CheckSum(payload)
 	payload = append(payload, checkCode...) // 25bytes data
-	// checksum
-
 	address := base58.Encode(payload)
 	return address
 }

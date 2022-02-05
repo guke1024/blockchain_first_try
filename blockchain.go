@@ -19,9 +19,7 @@ const blockBucket = "blockBucket"
 func NewBlockChain(address string) *BlockChain {
 	var lastHash []byte
 	db, err1 := bolt.Open(blockChainDb, 0600, nil)
-	if err1 != nil {
-		log.Panic("connect sql fail")
-	}
+	HandleErr("NewBlockChain connect sql fail:\n", err1)
 	_ = db.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(blockBucket))
 		if bucket == nil {

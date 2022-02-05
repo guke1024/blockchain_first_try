@@ -52,9 +52,16 @@ func (cli *CLI) Transfer(from, to string, amount float64, miner, data string) {
 }
 
 func (cli *CLI) CliNewWallet() {
-	wallet := NewWallet()
-	address := wallet.NewAddress()
-	fmt.Printf("Private Key: %v\n", wallet.Private)
-	fmt.Printf("Public Key: %v\n", wallet.Public)
+	ws := NewWallets()
+	address := ws.CreateWallet()
 	fmt.Printf("Address: %s\n", address)
+
+}
+
+func (cli *CLI) ListAddresses() {
+	ws := NewWallets()
+	addresses := ws.ListAllAddresses()
+	for _, address := range addresses {
+		fmt.Printf("Address: %s\n", address)
+	}
 }

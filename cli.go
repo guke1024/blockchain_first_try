@@ -16,6 +16,7 @@ const Usage = `
 	getBalance --address ADDRESS       "Obtain designated address balance"
 	transfer FROM TO AMOUNT MINER DATA "FROM transfers AMOUNT to TO, MINER mine and write to data"
 	newWallet                          "Create a new wallet"
+	listAddresses                      "List all addresses"
 `
 
 // Run go build example => ./example.exe command
@@ -59,6 +60,9 @@ func (cli *CLI) Run() {
 	case "newWallet":
 		fmt.Println("Create a new wallet:")
 		cli.CliNewWallet()
+	case "listAddresses":
+		fmt.Println("List all addresses:")
+		cli.ListAddresses()
 	default:
 		fmt.Println("Invalid command")
 		fmt.Printf(Usage)

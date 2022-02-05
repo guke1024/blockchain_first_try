@@ -5,7 +5,6 @@ import (
 	"crypto/sha256"
 	"encoding/gob"
 	"fmt"
-	"log"
 )
 
 const reward = 50
@@ -32,9 +31,7 @@ func (tx *Transaction) SetHash() {
 	var buffer bytes.Buffer
 	encoder := gob.NewEncoder(&buffer)
 	err1 := encoder.Encode(tx)
-	if err1 != nil {
-		log.Panic(err1)
-	}
+	HandleErr("SetHash Encode!", err1)
 	data := buffer.Bytes()
 	hash := sha256.Sum256(data)
 	tx.TXID = hash[:]

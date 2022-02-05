@@ -5,7 +5,6 @@ import (
 	"crypto/sha256"
 	"encoding/binary"
 	"encoding/gob"
-	"log"
 	"time"
 )
 
@@ -26,9 +25,7 @@ type Block struct {
 func Uint64ToByte(num uint64) []byte {
 	var buffer bytes.Buffer
 	err1 := binary.Write(&buffer, binary.BigEndian, num)
-	if err1 != nil {
-		log.Panic(err1)
-	}
+	HandleErr("Uint64ToByte binary.Write:\n", err1)
 	return buffer.Bytes()
 }
 
@@ -56,9 +53,7 @@ func (block *Block) Serialize() []byte {
 	var buffer bytes.Buffer
 	encoder := gob.NewEncoder(&buffer)
 	err1 := encoder.Encode(&block)
-	if err1 != nil {
-		log.Panic("Encode fail!")
-	}
+	HandleErr("Serialize encoder.Encode:\n", err1)
 	return buffer.Bytes()
 }
 
@@ -66,9 +61,7 @@ func Deserialize(data []byte) Block {
 	decoder := gob.NewDecoder(bytes.NewReader(data))
 	var block Block
 	err1 := decoder.Decode(&block)
-	if err1 != nil {
-		log.Panic("Decode fail!")
-	}
+	HandleErr("Deserialize decoder.Decode:\n", err1)
 
 	return block
 }
