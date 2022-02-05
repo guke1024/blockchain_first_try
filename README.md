@@ -1,4 +1,4 @@
-### This project has only been tested under Windows operating system and go 1.17
+### This project has only been tested under Windows operating system and go 1.17.
 
 # Usage
 
