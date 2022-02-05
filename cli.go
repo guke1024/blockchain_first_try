@@ -15,7 +15,7 @@ const Usage = `
 	printChainR                        "Reverse print all blockchain data"
 	getBalance --address ADDRESS       "Obtain designated address balance"
 	transfer FROM TO AMOUNT MINER DATA "FROM transfers AMOUNT to TO, MINER mine and write to data"
-	newWallet                          "Create a new wallet()"
+	newWallet                          "Create a new wallet"
 `
 
 // Run go build example => ./example.exe command
