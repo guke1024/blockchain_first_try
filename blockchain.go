@@ -46,6 +46,12 @@ func GenesisBlock(address string) *Block {
 
 // AddBlock add block
 func (bc *BlockChain) AddBlock(txs []*Transaction) {
+	for _, tx := range txs {
+		if !bc.VerifyTransaction(tx) {
+			fmt.Println("Miner find invalid transactions!")
+			return
+		}
+	}
 	// get last block and it's hash
 	db := bc.db
 	lastHash := bc.tail
@@ -185,4 +191,17 @@ func (bc *BlockChain) SignTransaction(tx *Transaction, privateKey *ecdsa.Private
 		prevTXs[string(inp.TXid)] = tx
 	}
 	tx.Sign(privateKey, prevTXs)
+}
+
+func (bc *BlockChain) VerifyTransaction(tx *Transaction) bool {
+	if tx.IsMining() {
+		return true
+	}
+	prevTXs := make(map[string]Transaction)
+	for _, inp := range tx.TXInputs {
+		tx, err1 := bc.FindTransactionByTXid(inp.TXid)
+		HandleErr("", err1)
+		prevTXs[string(inp.TXid)] = tx
+	}
+	return tx.Verify(prevTXs)
 }
