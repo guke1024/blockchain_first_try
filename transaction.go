@@ -3,9 +3,11 @@ package main
 import (
 	"bytes"
 	"crypto/ecdsa"
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/gob"
 	"fmt"
+	"log"
 )
 
 const reward = 50
@@ -97,11 +99,36 @@ func NewTransaction(from, to string, amount float64, bc *BlockChain) *Transactio
 	}
 	tx := Transaction{[]byte{}, input, output}
 	tx.SetHash()
-	prevTXs := make(map[string]Transaction)
-	tx.Sign(*privateKey, prevTXs)
+	bc.SignTransaction(&tx, privateKey)
 	return &tx
 }
 
-func (tx *Transaction) Sign(privateKey ecdsa.PrivateKey, prevTXs map[string]Transaction) {
-	// TODO
+func (tx *Transaction) Sign(privateKey *ecdsa.PrivateKey, prevTXs map[string]Transaction) {
+	txCopy := tx.TrimmedCopy()
+	for i, input := range txCopy.TXInputs {
+		prevTX := prevTXs[string(input.TXid)]
+		if len(prevTX.TXID) == 0 {
+			log.Panic("Quote transaction invalid")
+		}
+		txCopy.TXInputs[i].PubKey = prevTX.TXOutputs[input.Index].PubKeyHash
+		txCopy.SetHash()
+		txCopy.TXInputs[i].PubKey = nil
+		signDataHash := txCopy.TXID
+		r, s, err1 := ecdsa.Sign(rand.Reader, privateKey, signDataHash)
+		HandleErr("Sign ecdsa.Sign:\n", err1)
+		signature := append(r.Bytes(), s.Bytes()...)
+		tx.TXInputs[i].Signature = signature
+	}
+}
+
+func (tx *Transaction) TrimmedCopy() Transaction {
+	var inputs []TXInput
+	var outputs []TXOutput
+	for _, input := range tx.TXInputs {
+		inputs = append(inputs, TXInput{input.TXid, input.Index, nil, nil})
+	}
+	for _, output := range tx.TXOutputs {
+		outputs = append(outputs, output)
+	}
+	return Transaction{tx.TXID, inputs, outputs}
 }

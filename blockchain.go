@@ -2,6 +2,8 @@ package main
 
 import (
 	"bytes"
+	"crypto/ecdsa"
+	"errors"
 	"fmt"
 	bolt "go.etcd.io/bbolt"
 	"log"
@@ -156,4 +158,31 @@ func (bc *BlockChain) FindUTXOTransactions(senderPubKeyHash []byte) []*Transacti
 		}
 	}
 	return txs
+}
+
+func (bc *BlockChain) FindTransactionByTXid(id []byte) (Transaction, error) {
+	it := bc.NewIterator()
+	for {
+		block := it.Next()
+		for _, tx := range block.Transactions {
+			if bytes.Equal(tx.TXID, id) {
+				return *tx, nil
+			}
+		}
+
+		if len(block.PrevHash) == 0 {
+			break
+		}
+	}
+	return Transaction{}, errors.New("invalid transaction")
+}
+
+func (bc *BlockChain) SignTransaction(tx *Transaction, privateKey *ecdsa.PrivateKey) {
+	prevTXs := make(map[string]Transaction)
+	for _, inp := range tx.TXInputs {
+		tx, err1 := bc.FindTransactionByTXid(inp.TXid)
+		HandleErr("", err1)
+		prevTXs[string(inp.TXid)] = tx
+	}
+	tx.Sign(privateKey, prevTXs)
 }
