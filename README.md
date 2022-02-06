@@ -31,7 +31,7 @@ go mod tidy
 .\blockchain_first_try.exe [command]
 ```
 
-### Alternatively, I have provided three pieces of data in the project. You can also use the following command to test quickly.
+### Or you can use the following command to test quickly.
 ```shell
 .\blockchain_first_try.exe transfer 1JLyj9EK6sEv2NpVFV74NvEmgakc2uqmUj 134cxCG8v3RXjfzQRfrQbfw9kKc8bcwh74 20 16f7nqgn2nxnQkcdGtfSBCr1rparBDMPdH wuhu~
 .\blockchain_first_try.exe getBalance --address 1JLyj9EK6sEv2NpVFV74NvEmgakc2uqmUj
