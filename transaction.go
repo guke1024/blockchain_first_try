@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"log"
 	"math/big"
+	"strings"
 )
 
 const reward = 50
@@ -167,4 +168,27 @@ func (tx *Transaction) Verify(prevTXs map[string]Transaction) bool {
 		}
 	}
 	return true
+}
+
+func (tx Transaction) String() string {
+	var lines []string
+
+	lines = append(lines, fmt.Sprintf("--- Transaction %x:", tx.TXID))
+
+	for i, input := range tx.TXInputs {
+
+		lines = append(lines, fmt.Sprintf("     Input %d:", i))
+		lines = append(lines, fmt.Sprintf("       TXID:      %x", input.TXid))
+		lines = append(lines, fmt.Sprintf("       Out:       %d", input.Index))
+		lines = append(lines, fmt.Sprintf("       Signature: %x", input.Signature))
+		lines = append(lines, fmt.Sprintf("       PubKey:    %x", input.PubKey))
+	}
+
+	for i, output := range tx.TXOutputs {
+		lines = append(lines, fmt.Sprintf("     Output %d:", i))
+		lines = append(lines, fmt.Sprintf("       Value:  %f", output.Value))
+		lines = append(lines, fmt.Sprintf("       Script: %x", output.PubKeyHash))
+	}
+
+	return strings.Join(lines, "\n")
 }
