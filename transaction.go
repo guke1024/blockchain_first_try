@@ -3,11 +3,13 @@ package main
 import (
 	"bytes"
 	"crypto/ecdsa"
+	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/gob"
 	"fmt"
 	"log"
+	"math/big"
 )
 
 const reward = 50
@@ -104,11 +106,14 @@ func NewTransaction(from, to string, amount float64, bc *BlockChain) *Transactio
 }
 
 func (tx *Transaction) Sign(privateKey *ecdsa.PrivateKey, prevTXs map[string]Transaction) {
+	if tx.IsMining() {
+		return
+	}
 	txCopy := tx.TrimmedCopy()
 	for i, input := range txCopy.TXInputs {
 		prevTX := prevTXs[string(input.TXid)]
 		if len(prevTX.TXID) == 0 {
-			log.Panic("Quote transaction invalid")
+			log.Panic("Quote transaction invalid!")
 		}
 		txCopy.TXInputs[i].PubKey = prevTX.TXOutputs[input.Index].PubKeyHash
 		txCopy.SetHash()
@@ -131,4 +136,35 @@ func (tx *Transaction) TrimmedCopy() Transaction {
 		outputs = append(outputs, output)
 	}
 	return Transaction{tx.TXID, inputs, outputs}
+}
+
+func (tx *Transaction) Verify(prevTXs map[string]Transaction) bool {
+	if tx.IsMining() {
+		return true
+	}
+	txCopy := tx.TrimmedCopy()
+	for i, input := range tx.TXInputs {
+		prevTX := prevTXs[string(input.TXid)]
+		if len(prevTX.TXID) == 0 {
+			log.Panic("Quote transaction invalid!")
+		}
+		txCopy.TXInputs[i].PubKey = prevTX.TXOutputs[input.Index].PubKeyHash
+		txCopy.SetHash()
+		dataHash := txCopy.TXID
+		signature := input.Signature
+		pubKey := input.PubKey
+		r := big.Int{}
+		s := big.Int{}
+		r.SetBytes(signature[:len(signature)/2])
+		s.SetBytes(signature[len(signature)/2:])
+		X := big.Int{}
+		Y := big.Int{}
+		X.SetBytes(pubKey[:len(pubKey)/2])
+		Y.SetBytes(pubKey[len(pubKey)/2:])
+		pubKeyOrigin := ecdsa.PublicKey{Curve: elliptic.P256(), X: &X, Y: &Y}
+		if !ecdsa.Verify(&pubKeyOrigin, dataHash, &r, &s) {
+			return false
+		}
+	}
+	return true
 }
